@@ -10,10 +10,10 @@ public class FayeService extends Service {
 	
 	final private String TAG = getClass().getSimpleName();
 	
-	final private static String FAYE_HOST = "ws://argus4.arguslabs.be";
+	final private static String FAYE_HOST = "ws://YOUR_SERVICE_URL";
 	final private static String FAYE_PORT = "5556";
-	final private static String authToken = "27328fa4afd993840427fb5c971766e1c035e1c221ca93a5ddbad201bb04df86";
-	final private static String mainChannel = String.format("/private/%s", "4ed37ce10bd771759900002b");
+	final private static String authToken = "SECRET_TOKEN";
+	final private static String mainChannel = "/notifications";
 
 	FayeClient fayeClient;
 	
