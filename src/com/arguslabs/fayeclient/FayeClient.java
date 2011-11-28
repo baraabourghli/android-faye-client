@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class FayeClient{
+public class FayeClient {
 	
 	private final String TAG = "FayeClient";
 	
@@ -23,21 +23,14 @@ public class FayeClient{
 	private final int MESSAGE_ONMESSAGE = 3;
 	
 	private WebSocket webSocket = null;
-	private FayeClientListener listener = null;
+	private FayeClientListener mFayeClientListener = null;
 	private String mFayeUrlString = "";
+	private String mAuthToken = "";
 	private String mActiveSubChannel = "";
 	private String fayeClientId = "";
-	private String mAuthToken = "";
 	
 	private boolean webSocketConnected = false;
-	public boolean isWebSocketConnected() {
-		return webSocketConnected;
-	}
-
 	private boolean fayeConnected = false;
-	public boolean isFayeConnected() {
-		return fayeConnected;
-	}
 	
 	/**
 	 * Construct
@@ -57,30 +50,34 @@ public class FayeClient{
 	 * Get & Set
 	 */
 	public FayeClientListener getListener() {
-		return listener;
+		return mFayeClientListener;
 	}
-
-	public void setListener(FayeClientListener listener) {
-		this.listener = listener;
+	public void setListener(FayeClientListener l) {
+		mFayeClientListener = l;
+	}
+	public void setChannel(String channel) {
+		mActiveSubChannel = channel;
+	}
+	public boolean isWebSocketConnected() {
+		return webSocketConnected;
+	}
+	public boolean isFayeConnected() {
+		return fayeConnected;
 	}
 
 	/**
 	 * Public section
 	 */
-	public void connectToServer()
-	{
+	public void connectToServer() {
 		openWebSocketConnection();
 	}
-	public void disconnectFromServer()
-	{
+	public void disconnectFromServer() {
 		disconnect();
 	}
-	public void subscribeToChannel(String channel)
-	{
+	public void subscribeToChannel(String channel) {
 		subscribe(channel);
 	}
-	public void unsubscribeFromChannel(String channel)
-	{
+	public void unsubscribeFromChannel(String channel) {
 		unsubscribe(channel);
 	}
 	/**
@@ -93,8 +90,7 @@ public class FayeClient{
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			
-			switch(msg.what)
-			{
+			switch(msg.what) {
 				case MESSAGE_ONOPEN: 
 					Log.i(TAG, "onOpen() executed");
 					
@@ -108,8 +104,8 @@ public class FayeClient{
 					FayeClient.this.webSocketConnected = false;
 					FayeClient.this.fayeConnected = false;
 					
-					if(FayeClient.this.listener != null && FayeClient.this.listener instanceof FayeClientListener)
-						FayeClient.this.listener.disconnectedFromServer(FayeClient.this);
+					if(FayeClient.this.mFayeClientListener != null && FayeClient.this.mFayeClientListener instanceof FayeClientListener)
+						FayeClient.this.mFayeClientListener.disconnectedFromServer(FayeClient.this);
 				break;
 				
 				case MESSAGE_ONMESSAGE:
@@ -178,8 +174,8 @@ public class FayeClient{
 			if(fayeMsg.optString("channel").equals(HANDSHAKE_CHANNEL)) {
 				if(fayeMsg.optBoolean("successful")) {
 					this.fayeClientId = fayeMsg.optString("clientId");
-					if(this.listener != null && this.listener instanceof FayeClientListener) {
-						this.listener.connectedToServer(this);
+					if(this.mFayeClientListener != null && this.mFayeClientListener instanceof FayeClientListener) {
+						this.mFayeClientListener.connectedToServer(this);
 					}
 					this.connect();
 				}
@@ -196,8 +192,8 @@ public class FayeClient{
 				if(fayeMsg.optBoolean("successful")) {
 					this.fayeConnected = false;
 					this.closeWebSocketConnection();
-					if(this.listener != null && this.listener instanceof FayeClientListener) {
-						this.listener.disconnectedFromServer(this);
+					if(this.mFayeClientListener != null && this.mFayeClientListener instanceof FayeClientListener) {
+						this.mFayeClientListener.disconnectedFromServer(this);
 					}
 				}
 				else Log.e(TAG, "onMessage(): ERROR DISCONNECTING FROM FAYE");
@@ -215,8 +211,8 @@ public class FayeClient{
 			}
 			else if(fayeMsg.optString("channel").equals(mActiveSubChannel)) {
 				if (fayeMsg.optString("data") != null) {
-					if(this.listener != null && this.listener instanceof FayeClientListener) {
-						listener.messageReceieved(this, fayeMsg.optString("data"));
+					if(this.mFayeClientListener != null && this.mFayeClientListener instanceof FayeClientListener) {
+						mFayeClientListener.messageReceieved(this, fayeMsg.optString("data"));
 					}
 				}
 			}

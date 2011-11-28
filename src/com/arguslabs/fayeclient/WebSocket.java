@@ -354,8 +354,8 @@ public class WebSocket implements Runnable {
 				this.socketChannel.register(selector, this.socketChannel
 						.validOps());
 
-				// Loop until SocketChannel closes (500 ms timeout)
-				while (selector.select(500) > 0 && selector.isOpen()) {
+				// Loop until SocketChannel closes (10 minute timeout)
+				while (selector.select(10*60*1000) > 0 && selector.isOpen()) { 
 					// Iterate over the selection keys with pending events
 					Set<SelectionKey> keys = selector.selectedKeys();
 					Iterator<SelectionKey> iterator = keys.iterator();
